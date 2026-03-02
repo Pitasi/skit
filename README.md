@@ -96,7 +96,6 @@ Compiles `deck.md` into a static site in `dist/`.
 | `--theme` | (from front matter) | Theme directory |
 | `--base-url` | `/` | Base URL for assets |
 | `--aspect` | (from front matter) | Aspect ratio: `16:9`, `4:3`, `9:16`, `1:1` |
-| `--notes-mode` | `hidden` | `hidden`, `speaker`, or `handout` |
 | `--split-headings` | `false` | Also split slides on `#`/`##` headings |
 
 ### `deck serve`

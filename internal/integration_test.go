@@ -58,7 +58,6 @@ Notes for slide two.
 		OutputDir:   outDir,
 		BaseURL:     "/",
 		AspectRatio: "16:9",
-		NotesMode:   "hidden",
 	}); err != nil {
 		t.Fatalf("build: %v", err)
 	}
@@ -124,7 +123,6 @@ Notes here.
 		InputFile:  deckPath,
 		OutputDir:  outDir,
 		BaseURL:    "/",
-		NotesMode:  "hidden",
 		Theme:      "moon",
 		Transition: "fade",
 	}); err != nil {

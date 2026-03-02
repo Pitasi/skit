@@ -35,7 +35,6 @@ type TemplateData struct {
 	Slides      []TemplateSlide
 	BaseURL     string
 	AspectRatio string
-	NotesMode   string // "hidden", "speaker", "handout"
 	Transition  string // "none", "fade", "slide", "convex", "concave", "zoom"
 }
 
@@ -93,7 +92,7 @@ var _tmpl = template.Must(template.New("index").Parse(_indexTemplate))
 
 // NewTemplateData creates TemplateData from model types, converting HTML strings
 // to template.HTML for safe rendering.
-func NewTemplateData(meta model.Meta, slides []model.Slide, baseURL, aspectRatio, notesMode, transition string) TemplateData {
+func NewTemplateData(meta model.Meta, slides []model.Slide, baseURL, aspectRatio, transition string) TemplateData {
 	tSlides := make([]TemplateSlide, len(slides))
 	for i, s := range slides {
 		tSlides[i] = TemplateSlide{
@@ -108,7 +107,6 @@ func NewTemplateData(meta model.Meta, slides []model.Slide, baseURL, aspectRatio
 		Slides:      tSlides,
 		BaseURL:     baseURL,
 		AspectRatio: aspectRatio,
-		NotesMode:   notesMode,
 		Transition:  transition,
 	}
 }
