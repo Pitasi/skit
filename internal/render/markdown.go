@@ -5,7 +5,6 @@ import (
 	"bytes"
 
 	"github.com/yuin/goldmark"
-	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
@@ -16,9 +15,6 @@ var _md = goldmark.New(
 		extension.Table,
 		extension.Strikethrough,
 		extension.TaskList,
-		highlighting.NewHighlighting(
-			highlighting.WithStyle("monokai"),
-		),
 	),
 	goldmark.WithParserOptions(
 		parser.WithAutoHeadingID(),
