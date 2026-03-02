@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -14,7 +16,7 @@ import (
 
 func newPDFCmd() *cobra.Command {
 	var (
-		inputHTML string
+		distDir   string
 		outputPDF string
 		notes     string
 	)
@@ -24,14 +26,14 @@ func newPDFCmd() *cobra.Command {
 		Short: "Generate PDF from the built presentation",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPDF(pdfOpts{
-				inputHTML: inputHTML,
+				distDir:   distDir,
 				outputPDF: outputPDF,
 				notes:     notes,
 			})
 		},
 	}
 
-	cmd.Flags().StringVar(&inputHTML, "in", "dist/index.html", "input HTML file")
+	cmd.Flags().StringVar(&distDir, "dist", "dist", "build output directory to serve")
 	cmd.Flags().StringVar(&outputPDF, "out", "dist/deck.pdf", "output PDF file")
 	cmd.Flags().StringVar(&notes, "notes", "off", "notes mode (overlay, separate-page, off)")
 
@@ -39,22 +41,39 @@ func newPDFCmd() *cobra.Command {
 }
 
 type pdfOpts struct {
-	inputHTML string
+	distDir   string
 	outputPDF string
 	notes     string
 }
 
 func runPDF(opts pdfOpts) error {
-	absPath, err := filepath.Abs(opts.inputHTML)
+	indexPath := filepath.Join(opts.distDir, "index.html")
+	if _, err := os.Stat(indexPath); err != nil {
+		return fmt.Errorf("input file not found: %s (run 'deck build' first)", indexPath)
+	}
+
+	// Serve the dist directory over HTTP so that asset paths (e.g.
+	// /assets/reveal/dist/reveal.css) resolve correctly. The file://
+	// protocol can't resolve root-relative paths against the dist folder.
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
-		return fmt.Errorf("resolving input path: %w", err)
+		return fmt.Errorf("starting local server: %w", err)
+	}
+	defer listener.Close()
+
+	server := &http.Server{Handler: http.FileServer(http.Dir(opts.distDir))}
+	serveErr := make(chan error, 1)
+	go func() { serveErr <- server.Serve(listener) }()
+	defer server.Close()
+
+	// Fail fast if the server couldn't start.
+	select {
+	case err := <-serveErr:
+		return fmt.Errorf("local server failed: %w", err)
+	default:
 	}
 
-	if _, err := os.Stat(absPath); err != nil {
-		return fmt.Errorf("input file not found: %s (run 'deck build' first)", opts.inputHTML)
-	}
-
-	url := "file://" + absPath + "?print-pdf"
+	url := fmt.Sprintf("http://%s/?print-pdf", listener.Addr())
 
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
