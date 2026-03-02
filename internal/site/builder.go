@@ -19,10 +19,11 @@ import (
 type BuildOptions struct {
 	InputFile   string
 	OutputDir   string
-	ThemeDir    string
+	Theme       string
 	BaseURL     string
 	AspectRatio string
 	NotesMode   string
+	Transition  string
 }
 
 // Build generates the static site from a parsed (but not yet rendered) deck.
@@ -47,8 +48,12 @@ func Build(deck *model.Deck, opts BuildOptions) error {
 		return fmt.Errorf("copying reveal assets: %w", err)
 	}
 
-	// Copy theme.
-	if err := copyTheme(outDir, opts.ThemeDir); err != nil {
+	// Resolve theme: CLI flag takes priority, then front-matter, then default.
+	theme := opts.Theme
+	if theme == "" {
+		theme = deck.Meta.Theme
+	}
+	if err := resolveTheme(outDir, theme); err != nil {
 		return fmt.Errorf("copying theme: %w", err)
 	}
 
@@ -78,7 +83,17 @@ func Build(deck *model.Deck, opts BuildOptions) error {
 		aspectRatio = deck.Meta.AspectRatio
 	}
 
-	data := render.NewTemplateData(deck.Meta, deck.Slides, baseURL, aspectRatio, opts.NotesMode)
+	transition := opts.Transition
+	if transition == "" {
+		transition = deck.Meta.Transition
+	}
+	if transition != "" {
+		if err := validateTransition(transition); err != nil {
+			return err
+		}
+	}
+
+	data := render.NewTemplateData(deck.Meta, deck.Slides, baseURL, aspectRatio, opts.NotesMode, transition)
 	html, err := render.RenderHTML(data)
 	if err != nil {
 		return fmt.Errorf("rendering HTML: %w", err)
@@ -109,37 +124,63 @@ func copyRevealAssets(outDir string) error {
 	})
 }
 
-func copyTheme(outDir, themeDir string) error {
+// BuiltinThemes lists the reveal.js theme names embedded in the binary.
+var BuiltinThemes = []string{
+	"beige", "black", "blood", "dracula", "league",
+	"moon", "night", "serif", "simple", "sky",
+	"solarized", "white",
+}
+
+// resolveTheme picks the theme CSS and writes it to <outDir>/assets/theme.css.
+//
+// Resolution order:
+//  1. Empty → default ("white" built-in).
+//  2. Built-in name (e.g. "moon") → embedded CSS.
+//  3. Path to a .css file → copy it.
+//  4. Directory containing theme.css → copy theme.css from it.
+//  5. Otherwise → error.
+func resolveTheme(outDir, theme string) error {
 	themeDest := filepath.Join(outDir, "assets", "theme.css")
 
-	if themeDir == "" {
-		// Write a minimal default theme.
-		return os.WriteFile(themeDest, []byte(defaultThemeCSS), 0o644)
+	if theme == "" {
+		theme = "white"
 	}
 
-	themeSrc := filepath.Join(themeDir, "theme.css")
-	if _, err := os.Stat(themeSrc); err != nil {
-		// No theme.css in theme dir, use default.
-		return os.WriteFile(themeDest, []byte(defaultThemeCSS), 0o644)
+	// Try built-in name.
+	builtinPath := "reveal/dist/theme/" + theme + ".css"
+	if data, err := assets.RevealFS.ReadFile(builtinPath); err == nil {
+		return os.WriteFile(themeDest, data, 0o644)
 	}
 
-	return copyFile(themeSrc, themeDest)
+	// Try as a .css file path.
+	if strings.HasSuffix(theme, ".css") {
+		if _, err := os.Stat(theme); err == nil {
+			return copyFile(theme, themeDest)
+		}
+		return fmt.Errorf("theme CSS file not found: %s", theme)
+	}
+
+	// Try as a directory containing theme.css.
+	dirCSS := filepath.Join(theme, "theme.css")
+	if _, err := os.Stat(dirCSS); err == nil {
+		return copyFile(dirCSS, themeDest)
+	}
+
+	return fmt.Errorf("unknown theme %q; available built-in themes: %s",
+		theme, strings.Join(BuiltinThemes, ", "))
 }
 
-const defaultThemeCSS = `/* Default skit theme */
-.reveal {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+func validateTransition(t string) error {
+	for _, v := range render.ValidTransitions {
+		if v == t {
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown transition %q; valid values: %s",
+		t, strings.Join(render.ValidTransitions, ", "))
 }
-.reveal h1, .reveal h2, .reveal h3 {
-  font-weight: 700;
-  text-transform: none;
-}
-.reveal section img {
-  max-width: 100%;
-  max-height: 60vh;
-  object-fit: contain;
-}
-`
+
+
 
 func copyMedia(deck *model.Deck, inputDir, outDir string) error {
 	mediaDir := filepath.Join(outDir, "media")

@@ -94,6 +94,57 @@ Notes for slide two.
 	}
 }
 
+func TestBuildEndToEnd_ThemeAndTransition(t *testing.T) {
+	tmpDir := t.TempDir()
+	deckContent := `---
+title: Styled Deck
+theme: moon
+transition: fade
+---
+
+# Slide One
+
+Notes here.
+
+	Visible content.
+`
+	deckPath := filepath.Join(tmpDir, "deck.md")
+	if err := os.WriteFile(deckPath, []byte(deckContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	outDir := filepath.Join(tmpDir, "dist")
+
+	deck, err := parser.ParseFile(deckPath, parser.Options{})
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+
+	if err := site.Build(deck, site.BuildOptions{
+		InputFile:  deckPath,
+		OutputDir:  outDir,
+		BaseURL:    "/",
+		NotesMode:  "hidden",
+		Theme:      "moon",
+		Transition: "fade",
+	}); err != nil {
+		t.Fatalf("build: %v", err)
+	}
+
+	htmlBytes, err := os.ReadFile(filepath.Join(outDir, "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(htmlBytes)
+
+	if !strings.Contains(html, "transition: 'fade'") {
+		t.Error("expected transition: 'fade' in Reveal.initialize()")
+	}
+
+	// Verify theme.css was written (moon built-in).
+	assertFileExists(t, filepath.Join(outDir, "assets", "theme.css"))
+}
+
 func assertFileExists(t *testing.T, path string) {
 	t.Helper()
 	if _, err := os.Stat(path); err != nil {

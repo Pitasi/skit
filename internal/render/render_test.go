@@ -44,7 +44,7 @@ func TestRenderDeck_Golden(t *testing.T) {
 	}
 
 	// Generate full HTML and verify structure.
-	data := NewTemplateData(deck.Meta, deck.Slides, "/", "16:9", "hidden")
+	data := NewTemplateData(deck.Meta, deck.Slides, "/", "16:9", "hidden", "")
 	html, err := RenderHTML(data)
 	if err != nil {
 		t.Fatal(err)

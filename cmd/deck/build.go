@@ -10,12 +10,13 @@ import (
 
 func newBuildCmd() *cobra.Command {
 	var (
-		inputFile   string
-		outputDir   string
-		themeDir    string
-		baseURL     string
-		aspectRatio string
-		notesMode   string
+		inputFile     string
+		outputDir     string
+		theme         string
+		baseURL       string
+		aspectRatio   string
+		notesMode     string
+		transition    string
 		splitHeadings bool
 	)
 
@@ -26,10 +27,11 @@ func newBuildCmd() *cobra.Command {
 			return runBuild(buildOpts{
 				inputFile:     inputFile,
 				outputDir:     outputDir,
-				themeDir:      themeDir,
+				theme:         theme,
 				baseURL:       baseURL,
 				aspectRatio:   aspectRatio,
 				notesMode:     notesMode,
+				transition:    transition,
 				splitHeadings: splitHeadings,
 			})
 		},
@@ -37,10 +39,11 @@ func newBuildCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&inputFile, "in", "deck.md", "input markdown file")
 	cmd.Flags().StringVar(&outputDir, "out", "dist", "output directory")
-	cmd.Flags().StringVar(&themeDir, "theme", "", "theme directory")
+	cmd.Flags().StringVar(&theme, "theme", "", "built-in theme name, path to a .css file, or theme directory")
 	cmd.Flags().StringVar(&baseURL, "base-url", "/", "base URL for assets")
 	cmd.Flags().StringVar(&aspectRatio, "aspect", "", "aspect ratio (auto, 16:9, 4:3, 9:16, 1:1)")
 	cmd.Flags().StringVar(&notesMode, "notes-mode", "hidden", "notes mode (hidden, speaker, handout)")
+	cmd.Flags().StringVar(&transition, "transition", "", "slide transition (none, fade, slide, convex, concave, zoom)")
 	cmd.Flags().BoolVar(&splitHeadings, "split-headings", false, "also split slides on # and ## headings")
 
 	return cmd
@@ -49,10 +52,11 @@ func newBuildCmd() *cobra.Command {
 type buildOpts struct {
 	inputFile     string
 	outputDir     string
-	themeDir      string
+	theme         string
 	baseURL       string
 	aspectRatio   string
 	notesMode     string
+	transition    string
 	splitHeadings bool
 }
 
@@ -64,19 +68,14 @@ func runBuild(opts buildOpts) error {
 		return fmt.Errorf("parsing: %w", err)
 	}
 
-	// Resolve theme directory from meta if not specified via flag.
-	themeDir := opts.themeDir
-	if themeDir == "" && deck.Meta.Theme != "" {
-		themeDir = "themes/" + deck.Meta.Theme
-	}
-
 	if err := site.Build(deck, site.BuildOptions{
 		InputFile:   opts.inputFile,
 		OutputDir:   opts.outputDir,
-		ThemeDir:    themeDir,
+		Theme:       opts.theme,
 		BaseURL:     opts.baseURL,
 		AspectRatio: opts.aspectRatio,
 		NotesMode:   opts.notesMode,
+		Transition:  opts.transition,
 	}); err != nil {
 		return fmt.Errorf("building site: %w", err)
 	}
