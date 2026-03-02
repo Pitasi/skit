@@ -174,13 +174,19 @@ func runServe(opts serveOpts) error {
 
 const liveReloadScript = `<script>
 (function() {
-  var ws = new WebSocket("ws://" + location.host + "/ws");
-  ws.onmessage = function(e) {
-    if (e.data === "reload") location.reload();
-  };
-  ws.onclose = function() {
-    setTimeout(function() { location.reload(); }, 1000);
-  };
+  function connect() {
+    var ws = new WebSocket("ws://" + location.host + "/ws");
+    ws.onmessage = function(e) {
+      if (e.data === "reload") location.reload();
+    };
+    ws.onclose = function() {
+      // Reconnect after a delay instead of reloading the page.
+      // A successful reconnection means the server is still running;
+      // an actual reload message will trigger the page refresh.
+      setTimeout(connect, 1000);
+    };
+  }
+  connect();
 })();
 </script>
 `
@@ -201,6 +207,15 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 	// Also watch the directory containing the input file for new media.
 	watcher.Add(filepath.Dir(opts.inputFile))
 
+	// Resolve the output directory so we can ignore events caused by the
+	// build writing into it (which would otherwise re-trigger the watcher
+	// in an infinite loop).
+	absOutDir, err := filepath.Abs(opts.outputDir)
+	if err != nil {
+		log.Printf("watch error: resolving output dir: %v", err)
+		return
+	}
+
 	// Debounce rebuilds.
 	var debounce *time.Timer
 	for {
@@ -215,6 +230,17 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 				return
 			}
 			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
+				// Ignore events from the output directory to avoid
+				// rebuild → write → event → rebuild loops.
+				absPath, err := filepath.Abs(event.Name)
+				if err != nil {
+					log.Printf("watch: resolving event path: %v", err)
+					continue
+				}
+				if isInsideDir(absPath, absOutDir) {
+					continue
+				}
+
 				if debounce != nil {
 					debounce.Stop()
 				}
@@ -242,6 +268,11 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 			log.Printf("watch error: %v", err)
 		}
 	}
+}
+
+// isInsideDir reports whether path is inside (or equal to) dir.
+func isInsideDir(path, dir string) bool {
+	return path == dir || strings.HasPrefix(path, dir+string(filepath.Separator))
 }
 
 // reloadHub manages WebSocket connections for live reload.
