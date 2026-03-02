@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Test</title>
+<meta name="author" content="Test Author">
+<link rel="stylesheet" href="/assets/reveal/dist/reset.css">
+<link rel="stylesheet" href="/assets/reveal/dist/reveal.css">
+<link rel="stylesheet" href="/assets/reveal/dist/theme/white.css" id="theme">
+<link rel="stylesheet" href="/assets/reveal/plugin/highlight/monokai.css">
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+.reveal .slides section { text-align: left; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<section data-slide-index="0" data-title="First Slide">
+<h1 id="first-slide">First Slide</h1>
+<p>Visible text on the slide.</p>
+
+<aside class="notes">
+<p>Speaker notes for the first slide.</p>
+
+</aside>
+</section>
+
+<section data-slide-index="1" data-title="Second Slide">
+<h1 id="second-slide">Second Slide</h1>
+<p>Directive content visible on slide.</p>
+
+<aside class="notes">
+<p>More speaker notes.</p>
+
+</aside>
+</section>
+
+</div>
+</div>
+<script src="/assets/reveal/dist/reveal.js"></script>
+<script src="/assets/reveal/plugin/notes/notes.js"></script>
+<script src="/assets/reveal/plugin/highlight/highlight.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});">
+</script>
+<script>
+Reveal.initialize({
+  hash: true,
+  width: 1920, height: 1080,
+  
+  
+  
+  plugins: [ RevealNotes, RevealHighlight ]
+});
+</script>
+</body>
+</html>

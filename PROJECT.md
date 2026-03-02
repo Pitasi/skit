@@ -314,5 +314,3 @@ Key risks to address up front:
 - **PDF correctness.** reveal.js PDF export has documented expectations (Chrome/Chromium, `?print-pdf`, print settings) that must be matched in headless mode. 
 - **Scope creep into hosted sharing.** iA’s sharing includes quotas, link lifetimes, and licensing gates.  
   For MVP, “sharing” should mean “generate static output that you host wherever you want,” not “build a service.”
-
-If the agent implements the above faithfully, you’ll have a solid, testable base that preserves the two core iA Presenter behaviors you care about (notes-first authoring and responsive web/PDF rendering), while staying aligned with plain-file workflows in any editor.
