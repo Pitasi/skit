@@ -5,21 +5,21 @@ A CLI for building presentations from Markdown. Inspired by iA Presenter's "defa
 ## Install
 
 ```
-go install github.com/Pitasi/skit/cmd/deck@latest
+go install github.com/Pitasi/skit/cmd/skit@latest
 ```
 
 ## Quick start
 
 ```bash
-deck init my-talk
+skit init my-talk
 cd my-talk
-deck build
-deck serve
+skit build
+skit serve
 ```
 
 ## Authoring format
 
-Write your presentation in a single Markdown file (`deck.md`). YAML front matter at the top sets metadata:
+Write your presentation in a single Markdown file (`skit.md`). YAML front matter at the top sets metadata:
 
 ```markdown
 ---
@@ -81,24 +81,24 @@ Local images are copied to the output directory automatically.
 
 ## Commands
 
-### `deck init [path]`
+### `skit init [path]`
 
-Creates a starter project with `deck.md`, a default theme, and `.gitignore`.
+Creates a starter project with `skit.md`, a default theme, and `.gitignore`.
 
-### `deck build`
+### `skit build`
 
-Compiles `deck.md` into a static site in `dist/`.
+Compiles `skit.md` into a static site in `dist/`.
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--in` | `deck.md` | Input file |
+| `--in` | `skit.md` | Input file |
 | `--out` | `dist` | Output directory |
 | `--theme` | (from front matter) | Theme directory |
 | `--base-url` | `/` | Base URL for assets |
 | `--aspect` | (from front matter) | Aspect ratio: `16:9`, `4:3`, `9:16`, `1:1` |
 | `--split-headings` | `false` | Also split slides on `#`/`##` headings |
 
-### `deck serve`
+### `skit serve`
 
 Runs a local dev server with live reload. Watches for file changes and rebuilds automatically.
 
@@ -109,19 +109,19 @@ Runs a local dev server with live reload. Watches for file changes and rebuilds 
 
 Press `S` in the browser to open the speaker notes view.
 
-### `deck pdf`
+### `skit pdf`
 
 Generates a PDF using headless Chrome. Requires Chrome/Chromium installed.
 
 ```bash
-deck build
-deck pdf
+skit build
+skit pdf
 ```
 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--in` | `dist/index.html` | Input HTML |
-| `--out` | `dist/deck.pdf` | Output PDF |
+| `--out` | `dist/skit.pdf` | Output PDF |
 | `--notes` | `off` | `overlay`, `separate-page`, or `off` |
 
 ## Theming
@@ -134,7 +134,7 @@ Themes live in `themes/<name>/` with:
 ## Deploying to GitHub Pages
 
 ```bash
-deck build --base-url /my-repo/
+skit build --base-url /my-repo/
 ```
 
 Upload the `dist/` directory contents to your GitHub Pages branch.

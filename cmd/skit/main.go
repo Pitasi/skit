@@ -9,7 +9,7 @@ import (
 
 func main() {
 	root := &cobra.Command{
-		Use:   "deck",
+		Use:   "skit",
 		Short: "A CLI for building presentations from Markdown",
 	}
 

@@ -50,7 +50,7 @@ func newServeCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&addr, "addr", "127.0.0.1:8080", "listen address")
-	cmd.Flags().StringVar(&inputFile, "in", "deck.md", "input markdown file")
+	cmd.Flags().StringVar(&inputFile, "in", "skit.md", "input markdown file")
 	cmd.Flags().StringVar(&outputDir, "out", "dist", "output directory")
 	cmd.Flags().StringVar(&theme, "theme", "", "built-in theme name, path to a .css file, or theme directory")
 	cmd.Flags().StringVar(&baseURL, "base-url", "/", "base URL for assets")
