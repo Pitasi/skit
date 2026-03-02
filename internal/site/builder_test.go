@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Pitasi/skit/internal/assets"
 	"github.com/Pitasi/skit/internal/model"
 )
 
@@ -144,4 +145,120 @@ func TestCopyMedia_AcceptsValidRef(t *testing.T) {
 		t.Errorf("expected copied file at %s", copied)
 	}
 }
+
+func TestResolveTheme_BuiltinName(t *testing.T) {
+	outDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(outDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := resolveTheme(outDir, "moon"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	dest := filepath.Join(outDir, "assets", "theme.css")
+	got, err := os.ReadFile(dest)
+	if err != nil {
+		t.Fatalf("theme.css not written: %v", err)
+	}
+
+	want, _ := assets.RevealFS.ReadFile("reveal/dist/theme/moon.css")
+	if string(got) != string(want) {
+		t.Error("theme.css content does not match embedded moon.css")
+	}
+}
+
+func TestResolveTheme_CSSFilePath(t *testing.T) {
+	outDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(outDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	customCSS := filepath.Join(t.TempDir(), "brand.css")
+	if err := os.WriteFile(customCSS, []byte("/* brand */"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := resolveTheme(outDir, customCSS); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ := os.ReadFile(filepath.Join(outDir, "assets", "theme.css"))
+	if string(got) != "/* brand */" {
+		t.Errorf("expected custom CSS content, got: %s", got)
+	}
+}
+
+func TestResolveTheme_Directory(t *testing.T) {
+	outDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(outDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	themeDir := filepath.Join(t.TempDir(), "mytheme")
+	if err := os.MkdirAll(themeDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(themeDir, "theme.css"), []byte("/* dir theme */"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := resolveTheme(outDir, themeDir); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ := os.ReadFile(filepath.Join(outDir, "assets", "theme.css"))
+	if string(got) != "/* dir theme */" {
+		t.Errorf("expected directory theme content, got: %s", got)
+	}
+}
+
+func TestResolveTheme_DefaultWhenEmpty(t *testing.T) {
+	outDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(outDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := resolveTheme(outDir, ""); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got, _ := os.ReadFile(filepath.Join(outDir, "assets", "theme.css"))
+	want, _ := assets.RevealFS.ReadFile("reveal/dist/theme/white.css")
+	if string(got) != string(want) {
+		t.Error("default theme should be white.css")
+	}
+}
+
+func TestResolveTheme_UnknownName(t *testing.T) {
+	outDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(outDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	err := resolveTheme(outDir, "nonexistent")
+	if err == nil {
+		t.Fatal("expected error for unknown theme")
+	}
+	if !strings.Contains(err.Error(), "unknown theme") {
+		t.Errorf("expected 'unknown theme' error, got: %v", err)
+	}
+}
+
+func TestValidateTransition(t *testing.T) {
+	for _, valid := range []string{"none", "fade", "slide", "convex", "concave", "zoom"} {
+		if err := validateTransition(valid); err != nil {
+			t.Errorf("expected %q to be valid, got error: %v", valid, err)
+		}
+	}
+
+	err := validateTransition("wipe")
+	if err == nil {
+		t.Fatal("expected error for unknown transition")
+	}
+	if !strings.Contains(err.Error(), "unknown transition") {
+		t.Errorf("expected 'unknown transition' error, got: %v", err)
+	}
+}
+
 

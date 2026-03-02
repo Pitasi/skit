@@ -99,7 +99,8 @@ const starterDeck = `---
 title: My Presentation
 author: Your Name
 date: 2025-01-01
-theme: default
+theme: white
+transition: slide
 aspectRatio: "16:9"
 ---
 

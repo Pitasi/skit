@@ -23,10 +23,11 @@ func newServeCmd() *cobra.Command {
 		addr          string
 		inputFile     string
 		outputDir     string
-		themeDir      string
+		theme         string
 		baseURL       string
 		aspectRatio   string
 		notesMode     string
+		transition    string
 		splitHeadings bool
 		watch         bool
 	)
@@ -39,10 +40,11 @@ func newServeCmd() *cobra.Command {
 				addr:          addr,
 				inputFile:     inputFile,
 				outputDir:     outputDir,
-				themeDir:      themeDir,
+				theme:         theme,
 				baseURL:       baseURL,
 				aspectRatio:   aspectRatio,
 				notesMode:     notesMode,
+				transition:    transition,
 				splitHeadings: splitHeadings,
 				watch:         watch,
 			})
@@ -52,10 +54,11 @@ func newServeCmd() *cobra.Command {
 	cmd.Flags().StringVar(&addr, "addr", "127.0.0.1:8080", "listen address")
 	cmd.Flags().StringVar(&inputFile, "in", "deck.md", "input markdown file")
 	cmd.Flags().StringVar(&outputDir, "out", "dist", "output directory")
-	cmd.Flags().StringVar(&themeDir, "theme", "", "theme directory")
+	cmd.Flags().StringVar(&theme, "theme", "", "built-in theme name, path to a .css file, or theme directory")
 	cmd.Flags().StringVar(&baseURL, "base-url", "/", "base URL for assets")
 	cmd.Flags().StringVar(&aspectRatio, "aspect", "", "aspect ratio")
 	cmd.Flags().StringVar(&notesMode, "notes-mode", "speaker", "notes mode (hidden, speaker, handout)")
+	cmd.Flags().StringVar(&transition, "transition", "", "slide transition (none, fade, slide, convex, concave, zoom)")
 	cmd.Flags().BoolVar(&splitHeadings, "split-headings", false, "split slides on headings")
 	cmd.Flags().BoolVar(&watch, "watch", true, "watch for file changes")
 
@@ -66,10 +69,11 @@ type serveOpts struct {
 	addr          string
 	inputFile     string
 	outputDir     string
-	themeDir      string
+	theme         string
 	baseURL       string
 	aspectRatio   string
 	notesMode     string
+	transition    string
 	splitHeadings bool
 	watch         bool
 }
@@ -79,10 +83,11 @@ func runServe(opts serveOpts) error {
 	if err := runBuild(buildOpts{
 		inputFile:     opts.inputFile,
 		outputDir:     opts.outputDir,
-		themeDir:      opts.themeDir,
+		theme:         opts.theme,
 		baseURL:       opts.baseURL,
 		aspectRatio:   opts.aspectRatio,
 		notesMode:     opts.notesMode,
+		transition:    opts.transition,
 		splitHeadings: opts.splitHeadings,
 	}); err != nil {
 		return err
@@ -199,10 +204,10 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 	}
 	defer watcher.Close()
 
-	// Watch the input file and theme directory.
+	// Watch the input file and theme path (if it's a local file or directory).
 	watcher.Add(opts.inputFile)
-	if opts.themeDir != "" {
-		watcher.Add(opts.themeDir)
+	if opts.theme != "" {
+		watcher.Add(opts.theme)
 	}
 	// Also watch the directory containing the input file for new media.
 	watcher.Add(filepath.Dir(opts.inputFile))
@@ -249,10 +254,11 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 					if err := runBuild(buildOpts{
 						inputFile:     opts.inputFile,
 						outputDir:     opts.outputDir,
-						themeDir:      opts.themeDir,
+						theme:         opts.theme,
 						baseURL:       opts.baseURL,
 						aspectRatio:   opts.aspectRatio,
 						notesMode:     opts.notesMode,
+						transition:    opts.transition,
 						splitHeadings: opts.splitHeadings,
 					}); err != nil {
 						log.Printf("rebuild error: %v", err)
