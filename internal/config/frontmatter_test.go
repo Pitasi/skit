@@ -61,6 +61,20 @@ func TestParseFrontMatter_DotsClosing(t *testing.T) {
 	}
 }
 
+func TestParseFrontMatter_ThemeAndTransition(t *testing.T) {
+	content := "---\ntitle: Styled\ntheme: moon\ntransition: fade\n---\nbody\n"
+	meta, _, err := ParseFrontMatter(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if meta.Theme != "moon" {
+		t.Errorf("expected theme 'moon', got %q", meta.Theme)
+	}
+	if meta.Transition != "fade" {
+		t.Errorf("expected transition 'fade', got %q", meta.Transition)
+	}
+}
+
 func TestParseFrontMatter_Unclosed(t *testing.T) {
 	content := "---\ntitle: Unclosed\n"
 	_, _, err := ParseFrontMatter(content)

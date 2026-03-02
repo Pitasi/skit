@@ -13,6 +13,7 @@ type Meta struct {
 	Author      string         `yaml:"author"`
 	Date        string         `yaml:"date"`
 	Theme       string         `yaml:"theme"`
+	Transition  string         `yaml:"transition"`
 	AspectRatio string         `yaml:"aspectRatio"`
 	BaseURL     string         `yaml:"baseUrl"`
 	Extra       map[string]any `yaml:",inline"`
