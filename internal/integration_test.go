@@ -11,7 +11,7 @@ import (
 )
 
 func TestBuildEndToEnd(t *testing.T) {
-	// Create a temp directory with a deck file.
+	// Create a temp directory with a presentation file.
 	tmpDir := t.TempDir()
 	deckContent := `---
 title: Integration Test
@@ -35,7 +35,7 @@ Directive content.
 
 Notes for slide two.
 `
-	deckPath := filepath.Join(tmpDir, "deck.md")
+	deckPath := filepath.Join(tmpDir, "skit.md")
 	if err := os.WriteFile(deckPath, []byte(deckContent), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ Notes here.
 
 	Visible content.
 `
-	deckPath := filepath.Join(tmpDir, "deck.md")
+	deckPath := filepath.Join(tmpDir, "skit.md")
 	if err := os.WriteFile(deckPath, []byte(deckContent), 0o644); err != nil {
 		t.Fatal(err)
 	}

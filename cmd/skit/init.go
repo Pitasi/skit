@@ -11,7 +11,7 @@ import (
 func newInitCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init [path]",
-		Short: "Create a starter deck project",
+		Short: "Create a starter presentation project",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dir := "."
@@ -30,8 +30,8 @@ func runInit(dir string) error {
 
 	wrote := 0
 
-	// deck.md
-	deckPath := filepath.Join(dir, "deck.md")
+	// skit.md
+	deckPath := filepath.Join(dir, "skit.md")
 	if created, err := writeIfNotExists(deckPath, []byte(starterDeck)); err != nil {
 		return err
 	} else if created {
@@ -77,12 +77,12 @@ func runInit(dir string) error {
 		return nil
 	}
 
-	fmt.Printf("Initialized deck project in %s\n", dir)
-	fmt.Println("  deck.md              - your presentation")
+	fmt.Printf("Initialized project in %s\n", dir)
+	fmt.Println("  skit.md              - your presentation")
 	fmt.Println("  themes/default/      - theme files")
 	fmt.Println("  .gitignore           - ignores dist/")
 	fmt.Println()
-	fmt.Println("Run 'deck build' to generate the static site.")
+	fmt.Println("Run 'skit build' to generate the static site.")
 	return nil
 }
 
@@ -130,14 +130,14 @@ This block is also visible on the slide, using the :::slide directive.
 
 	` + "```" + `go
 	func main() {
-		fmt.Println("Hello, deck!")
+		fmt.Println("Hello, skit!")
 	}
 	` + "```" + `
 
 This slide demonstrates a tab-promoted code block.
 `
 
-const starterThemeCSS = `/* Default deck theme */
+const starterThemeCSS = `/* Default skit theme */
 .reveal {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 42px;

@@ -58,7 +58,7 @@ A practical slide-splitting rule: accept `---` as a slide separator (aligned wit
 
 **Authoring format (filesystem)**
 
-Define a single primary input file (for MVP) such as `deck.md`. Optionally accept a directory layout later.
+Define a single primary input file (for MVP) such as `skit.md`. Optionally accept a directory layout later.
 
 The CLI should support:
 
@@ -79,7 +79,7 @@ This is a concrete build plan intended to be handed to an implementing agent. It
 
 Use a standard Go multi-package layout:
 
-- `cmd/deck/`: Cobra/urfave CLI entrypoint (choose one and stick to it).
+- `cmd/skit/`: Cobra/urfave CLI entrypoint (choose one and stick to it).
 - `internal/config/`: parse config + front matter.
 - `internal/parser/`: slide splitting + note/slide extraction + content blocks.
 - `internal/render/`: Markdown → HTML, templating, theme resolution.
@@ -94,25 +94,25 @@ Keep exported APIs small; document packages with short package comments and publ
 
 Implement these commands (names can be adjusted, but the shape should remain):
 
-**`deck init [path]`**  
+**`skit init [path]`**  
 Creates a starter project:
-- `deck.md` with example slide separators, notes, slide-visible blocks, and one image.
+- `skit.md` with example slide separators, notes, slide-visible blocks, and one image.
 - `themes/default/` with `theme.css` and `theme.json`.
 - `.gitignore` with `dist/`.
 
-**`deck build`**  
-Compiles `deck.md` into a static site in `dist/`:
+**`skit build`**  
+Compiles `skit.md` into a static site in `dist/`:
 - `dist/index.html`
 - `dist/assets/...` (JS/CSS/fonts)
 - `dist/media/...` (copied local media referenced in Markdown)
 
 Flags:
-- `--in deck.md`
+- `--in skit.md`
 - `--out dist`
 - `--theme themes/default` (or theme name)
 - `--base-url /` (important for GitHub Pages subpaths)
 - `--aspect auto|16:9|4:3|9:16|1:1` (maps to reveal size or CSS) 
-**`deck serve`**  
+**`skit serve`**  
 Runs a local server:
 - Serves `dist/` (build-once or build-on-change).
 - Watches source files (markdown + theme + media) and rebuilds.
@@ -124,8 +124,8 @@ Flags:
 - `--watch` (default true)
 - `--drafts` (if you add draft slide support later)
 
-**`deck pdf`**  
-Generates `dist/deck.pdf`.
+**`skit pdf`**  
+Generates `dist/skit.pdf`.
 Two acceptable MVP approaches:
 
 - **Preferred**: use headless Chrome via Go (chromedp or similar) to open `dist/index.html?print-pdf` and call print-to-PDF. reveal.js documents `?print-pdf` as the path to PDF mode and notes inclusion via `showNotes`. 
@@ -134,7 +134,7 @@ Two acceptable MVP approaches:
 
 Flags:
 - `--in dist/index.html` (default from build output)
-- `--out dist/deck.pdf`
+- `--out dist/skit.pdf`
 - `--notes overlay|separate-page|off` (maps to reveal `showNotes`) 
 
 ### Parsing and document model
@@ -224,7 +224,7 @@ Generate `index.html` from templates with:
 - reveal.js documents a specific PDF export mode using `?print-pdf` and the browser print dialog, and notes it’s confirmed to work in Chrome/Chromium. 
 - It also documents how to include speaker notes in PDF via `showNotes` and how to print notes on separate pages (`'separate-page'`). 
 
-**Implementing `deck pdf`**
+**Implementing `skit pdf`**
 - Build the site to `dist/`.
 - Launch headless Chrome:
   - Load `file:///.../dist/index.html?print-pdf`.
@@ -238,7 +238,7 @@ Generate `index.html` from templates with:
 For MVP, rely on reveal.js’s ecosystem for speaker view rather than re-implementing teleprompter UX from scratch.
 
 - Enable speaker notes plugin and ensure notes are in `<aside class="notes">`. 
-- Provide a `deck serve --speaker` flag that opens:
+- Provide a `skit serve --speaker` flag that opens:
   - Audience view: `/`
   - Speaker view: either by instructing to press `S` (reveal default) or by opening `/speaker` that triggers it. reveal.js documents `S` as the shortcut. 
 - Optional enhancement: implement “navigate by notes vs by slides” analogous to iA (notes-scroll vs title-jump). iA explicitly supports both navigation modes.  
@@ -254,7 +254,7 @@ This MVP should be strict in ways that prevent silent wrong output.
   - Unclosed `:::slide` blocks
   - Missing local media references (provide file path + slide index)
 - Provide deterministic slide indices and stable IDs for deep links.
-- Provide `deck doctor` (optional but valuable): validates references, theme files, and that PDF prerequisites exist (Chrome detected).
+- Provide `skit doctor` (optional but valuable): validates references, theme files, and that PDF prerequisites exist (Chrome detected).
 
 ## Testing, documentation, and quality gates
 
@@ -281,9 +281,9 @@ A production-grade foundation is mostly about repeatability.
 - For CSS/JS assets, assert file presence and expected directory structure.
 
 **Integration tests**
-- `deck build` end-to-end: run in temp dir, confirm outputs exist, confirm media copying.
-- `deck serve`: start server on random port, fetch `GET /` returns 200 and contains slide content.
-- `deck pdf` (optional in CI): run only when Chrome is available; otherwise skip with clear reason.
+- `skit build` end-to-end: run in temp dir, confirm outputs exist, confirm media copying.
+- `skit serve`: start server on random port, fetch `GET /` returns 200 and contains slide content.
+- `skit pdf` (optional in CI): run only when Chrome is available; otherwise skip with clear reason.
 
 **Documentation**
 - `README.md` should include:

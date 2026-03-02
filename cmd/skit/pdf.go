@@ -34,7 +34,7 @@ func newPDFCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&distDir, "dist", "dist", "build output directory to serve")
-	cmd.Flags().StringVar(&outputPDF, "out", "dist/deck.pdf", "output PDF file")
+	cmd.Flags().StringVar(&outputPDF, "out", "dist/skit.pdf", "output PDF file")
 	cmd.Flags().StringVar(&notes, "notes", "off", "notes mode (overlay, separate-page, off)")
 
 	return cmd
@@ -49,7 +49,7 @@ type pdfOpts struct {
 func runPDF(opts pdfOpts) error {
 	indexPath := filepath.Join(opts.distDir, "index.html")
 	if _, err := os.Stat(indexPath); err != nil {
-		return fmt.Errorf("input file not found: %s (run 'deck build' first)", indexPath)
+		return fmt.Errorf("input file not found: %s (run 'skit build' first)", indexPath)
 	}
 
 	// Serve the dist directory over HTTP so that asset paths (e.g.

@@ -9,7 +9,7 @@
 - `go test ./...` — run all tests.
 - `UPDATE_GOLDEN=1 go test ./internal/render/` — regenerate the golden file at `internal/testdata/basic.golden.html`.
 - Golden file comparison lives in `internal/render/render_test.go`.
-- Integration test in `internal/integration_test.go` builds a full deck end-to-end.
+- Integration test in `internal/integration_test.go` builds a full presentation end-to-end.
 
 ## Code Style
 
@@ -17,9 +17,9 @@ Refer to `STYLE.md` for the Go source code you write.
 
 ## Architecture
 
-`skit` (binary name: `deck`) converts Markdown files into reveal.js slide decks.
+`skit` converts Markdown files into reveal.js slide decks.
 
-### CLI (`cmd/deck/`)
+### CLI (`cmd/skit/`)
 Entry point. Subcommands: `init`, `build`, `serve`, `pdf`. Uses cobra.
 
 ### Pipeline
