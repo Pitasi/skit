@@ -112,11 +112,6 @@ Flags:
 - `--theme themes/default` (or theme name)
 - `--base-url /` (important for GitHub Pages subpaths)
 - `--aspect auto|16:9|4:3|9:16|1:1` (maps to reveal size or CSS) 
-- `--notes-mode hidden|speaker|handout`  
-  - `hidden`: audience deck (default).
-  - `speaker`: enable reveal speaker view scaffolding.
-  - `handout`: generate a parallel `handout.html` (notes + thumbnails).
-
 **`deck serve`**  
 Runs a local server:
 - Serves `dist/` (build-once or build-on-change).
@@ -130,7 +125,7 @@ Flags:
 - `--drafts` (if you add draft slide support later)
 
 **`deck pdf`**  
-Generates `dist/deck.pdf` (and optionally `dist/handout.pdf`).
+Generates `dist/deck.pdf`.
 Two acceptable MVP approaches:
 
 - **Preferred**: use headless Chrome via Go (chromedp or similar) to open `dist/index.html?print-pdf` and call print-to-PDF. reveal.js documents `?print-pdf` as the path to PDF mode and notes inclusion via `showNotes`. 

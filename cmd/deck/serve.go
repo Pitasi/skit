@@ -26,7 +26,6 @@ func newServeCmd() *cobra.Command {
 		theme         string
 		baseURL       string
 		aspectRatio   string
-		notesMode     string
 		transition    string
 		splitHeadings bool
 		watch         bool
@@ -43,7 +42,6 @@ func newServeCmd() *cobra.Command {
 				theme:         theme,
 				baseURL:       baseURL,
 				aspectRatio:   aspectRatio,
-				notesMode:     notesMode,
 				transition:    transition,
 				splitHeadings: splitHeadings,
 				watch:         watch,
@@ -57,7 +55,6 @@ func newServeCmd() *cobra.Command {
 	cmd.Flags().StringVar(&theme, "theme", "", "built-in theme name, path to a .css file, or theme directory")
 	cmd.Flags().StringVar(&baseURL, "base-url", "/", "base URL for assets")
 	cmd.Flags().StringVar(&aspectRatio, "aspect", "", "aspect ratio")
-	cmd.Flags().StringVar(&notesMode, "notes-mode", "speaker", "notes mode (hidden, speaker, handout)")
 	cmd.Flags().StringVar(&transition, "transition", "", "slide transition (none, fade, slide, convex, concave, zoom)")
 	cmd.Flags().BoolVar(&splitHeadings, "split-headings", false, "split slides on headings")
 	cmd.Flags().BoolVar(&watch, "watch", true, "watch for file changes")
@@ -72,7 +69,6 @@ type serveOpts struct {
 	theme         string
 	baseURL       string
 	aspectRatio   string
-	notesMode     string
 	transition    string
 	splitHeadings bool
 	watch         bool
@@ -86,7 +82,6 @@ func runServe(opts serveOpts) error {
 		theme:         opts.theme,
 		baseURL:       opts.baseURL,
 		aspectRatio:   opts.aspectRatio,
-		notesMode:     opts.notesMode,
 		transition:    opts.transition,
 		splitHeadings: opts.splitHeadings,
 	}); err != nil {
@@ -257,7 +252,6 @@ func watchAndRebuild(ctx context.Context, opts serveOpts, hub *reloadHub) {
 						theme:         opts.theme,
 						baseURL:       opts.baseURL,
 						aspectRatio:   opts.aspectRatio,
-						notesMode:     opts.notesMode,
 						transition:    opts.transition,
 						splitHeadings: opts.splitHeadings,
 					}); err != nil {

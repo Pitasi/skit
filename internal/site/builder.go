@@ -22,7 +22,6 @@ type BuildOptions struct {
 	Theme       string
 	BaseURL     string
 	AspectRatio string
-	NotesMode   string
 	Transition  string
 }
 
@@ -93,7 +92,7 @@ func Build(deck *model.Deck, opts BuildOptions) error {
 		}
 	}
 
-	data := render.NewTemplateData(deck.Meta, deck.Slides, baseURL, aspectRatio, opts.NotesMode, transition)
+	data := render.NewTemplateData(deck.Meta, deck.Slides, baseURL, aspectRatio, transition)
 	html, err := render.RenderHTML(data)
 	if err != nil {
 		return fmt.Errorf("rendering HTML: %w", err)

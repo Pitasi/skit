@@ -15,7 +15,6 @@ func newBuildCmd() *cobra.Command {
 		theme         string
 		baseURL       string
 		aspectRatio   string
-		notesMode     string
 		transition    string
 		splitHeadings bool
 	)
@@ -30,7 +29,6 @@ func newBuildCmd() *cobra.Command {
 				theme:         theme,
 				baseURL:       baseURL,
 				aspectRatio:   aspectRatio,
-				notesMode:     notesMode,
 				transition:    transition,
 				splitHeadings: splitHeadings,
 			})
@@ -42,7 +40,6 @@ func newBuildCmd() *cobra.Command {
 	cmd.Flags().StringVar(&theme, "theme", "", "built-in theme name, path to a .css file, or theme directory")
 	cmd.Flags().StringVar(&baseURL, "base-url", "/", "base URL for assets")
 	cmd.Flags().StringVar(&aspectRatio, "aspect", "", "aspect ratio (auto, 16:9, 4:3, 9:16, 1:1)")
-	cmd.Flags().StringVar(&notesMode, "notes-mode", "hidden", "notes mode (hidden, speaker, handout)")
 	cmd.Flags().StringVar(&transition, "transition", "", "slide transition (none, fade, slide, convex, concave, zoom)")
 	cmd.Flags().BoolVar(&splitHeadings, "split-headings", false, "also split slides on # and ## headings")
 
@@ -55,7 +52,6 @@ type buildOpts struct {
 	theme         string
 	baseURL       string
 	aspectRatio   string
-	notesMode     string
 	transition    string
 	splitHeadings bool
 }
@@ -74,7 +70,6 @@ func runBuild(opts buildOpts) error {
 		Theme:       opts.theme,
 		BaseURL:     opts.baseURL,
 		AspectRatio: opts.aspectRatio,
-		NotesMode:   opts.notesMode,
 		Transition:  opts.transition,
 	}); err != nil {
 		return fmt.Errorf("building site: %w", err)
