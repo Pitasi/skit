@@ -93,9 +93,10 @@ Compiles `skit.md` into a static site in `dist/`.
 |------|---------|-------------|
 | `--in` | `skit.md` | Input file |
 | `--out` | `dist` | Output directory |
-| `--theme` | (from front matter) | Theme directory |
+| `--theme` | (from front matter) | Built-in name, `.css` file path, or theme directory |
 | `--base-url` | `/` | Base URL for assets |
 | `--aspect` | (from front matter) | Aspect ratio: `16:9`, `4:3`, `9:16`, `1:1` |
+| `--transition` | (from front matter) | Slide transition: `none`, `fade`, `slide`, `convex`, `concave`, `zoom` |
 | `--split-headings` | `false` | Also split slides on `#`/`##` headings |
 
 ### `skit serve`
@@ -105,6 +106,13 @@ Runs a local dev server with live reload. Watches for file changes and rebuilds 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--addr` | `127.0.0.1:8080` | Listen address |
+| `--in` | `skit.md` | Input file |
+| `--out` | `dist` | Output directory |
+| `--theme` | (from front matter) | Built-in name, `.css` file path, or theme directory |
+| `--base-url` | `/` | Base URL for assets |
+| `--aspect` | (from front matter) | Aspect ratio |
+| `--transition` | (from front matter) | Slide transition |
+| `--split-headings` | `false` | Split slides on headings |
 | `--watch` | `true` | Watch for changes |
 
 Press `S` in the browser to open the speaker notes view.
@@ -126,10 +134,92 @@ skit pdf
 
 ## Theming
 
-Themes live in `themes/<name>/` with:
+skit supports three ways to set a theme, in order of priority:
 
-- `theme.css` — CSS applied after the reveal.js base theme
-- `theme.json` — metadata (name, author, version, css files, fonts)
+1. **CLI flag** — `--theme <value>` on `build` or `serve`
+2. **Front matter** — `theme:` field in the YAML header
+3. **Default** — `white` (a built-in reveal.js theme)
+
+The `--theme` value is resolved as follows:
+
+| Value | Example | What happens |
+|-------|---------|--------------|
+| Built-in name | `--theme dracula` | Uses the bundled reveal.js theme CSS |
+| Path to `.css` file | `--theme ./my-theme.css` | Copies that file as the theme |
+| Directory | `--theme ./themes/default` | Copies `theme.css` from that directory |
+
+### Built-in themes
+
+These are the standard reveal.js themes bundled with skit:
+
+`beige` · `black` · `blood` · `dracula` · `league` · `moon` · `night` · `serif` · `simple` · `sky` · `solarized` · `white`
+
+Use them by name in front matter or with `--theme`:
+
+```yaml
+---
+theme: dracula
+---
+```
+
+### Custom themes
+
+To create a custom theme, write a CSS file that styles the `.reveal` container. The CSS is loaded _after_ the reveal.js base styles, so you can override anything.
+
+A minimal custom theme:
+
+```css
+.reveal {
+  font-family: "Georgia", serif;
+  font-size: 40px;
+  color: #333;
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+  color: #1a1a2e;
+  text-transform: none;
+}
+
+.reveal pre {
+  font-size: 0.55em;
+}
+```
+
+Use it directly:
+
+```bash
+skit build --theme ./my-theme.css
+skit serve --theme ./my-theme.css
+```
+
+Or put it in a directory and reference the directory:
+
+```
+themes/
+  my-theme/
+    theme.css
+    theme.json   # optional metadata
+```
+
+```bash
+skit build --theme ./themes/my-theme
+```
+
+You can also set it in front matter by path:
+
+```yaml
+---
+theme: ./themes/my-theme
+---
+```
+
+### Scaffolded theme
+
+`skit init` creates a starter theme at `themes/default/` with `theme.css` and `theme.json`. Edit `themes/default/theme.css` to customize fonts, colors, and layout. The `theme.json` file is metadata only — it is not read by the build pipeline.
+
+### Live reload
+
+When using `skit serve --theme <path>`, changes to the theme file or directory are watched and trigger an automatic rebuild.
 
 ## Deploying to GitHub Pages
 
