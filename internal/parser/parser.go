@@ -41,7 +41,11 @@ func Parse(content string, opts Options) (*model.Deck, error) {
 			return nil, fmt.Errorf("slide %d: unclosed :::slide block", i)
 		}
 
-		slides = append(slides, SeparateContent(chunk, i))
+		slide, err := SeparateContent(chunk, i)
+		if err != nil {
+			return nil, err
+		}
+		slides = append(slides, slide)
 	}
 
 	return &model.Deck{

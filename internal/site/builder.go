@@ -255,6 +255,9 @@ func rewriteMediaPathsInMarkdown(deck *model.Deck, baseURL string) {
 			})
 		}
 		s.SlideMarkdown = rewrite(s.SlideMarkdown)
+		for j := range s.Cells {
+			s.Cells[j].Markdown = rewrite(s.Cells[j].Markdown)
+		}
 		s.NotesMarkdown = rewrite(s.NotesMarkdown)
 	}
 }

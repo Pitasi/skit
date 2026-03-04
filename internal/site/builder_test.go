@@ -82,6 +82,32 @@ func TestRewriteMediaPathsInMarkdown_SkipsURLs(t *testing.T) {
 	}
 }
 
+func TestRewriteMediaPathsInMarkdown_RewritesCellMarkdown(t *testing.T) {
+	deck := &model.Deck{
+		Slides: []model.Slide{
+			{
+				Index:         0,
+				SlideMarkdown: "![photo](logo.png)",
+				Cells: []model.Cell{
+					{Markdown: "![photo](logo.png)"},
+					{Markdown: "Some text without images"},
+				},
+				MediaRefs: []string{"logo.png"},
+			},
+		},
+	}
+
+	rewriteMediaPathsInMarkdown(deck, "/")
+
+	s := deck.Slides[0]
+	if !strings.Contains(s.Cells[0].Markdown, "![photo](/media/logo.png)") {
+		t.Errorf("expected cell 0 image rewritten, got: %s", s.Cells[0].Markdown)
+	}
+	if strings.Contains(s.Cells[1].Markdown, "/media/") {
+		t.Errorf("expected cell 1 unchanged, got: %s", s.Cells[1].Markdown)
+	}
+}
+
 func TestCopyMedia_RejectsPathTraversal(t *testing.T) {
 	inputDir := t.TempDir()
 	outDir := t.TempDir()

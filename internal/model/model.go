@@ -19,13 +19,22 @@ type Meta struct {
 	Extra       map[string]any `yaml:",inline"`
 }
 
+// Cell is a block of slide-visible content. Cells are separated by blank
+// lines in the slide's visible markdown and are the unit of layout.
+type Cell struct {
+	Markdown string
+	HTML     string
+}
+
 // Slide represents a single slide with its visible and notes content.
 type Slide struct {
 	Index         int
 	Title         string
+	Layout        string // layout directive, e.g. "split", "background"
 	SlideMarkdown string
 	NotesMarkdown string
 	SlideHTML     string
 	NotesHTML     string
+	Cells         []Cell
 	MediaRefs     []string
 }
